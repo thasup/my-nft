@@ -100,8 +100,8 @@ async function getTxReceipt(block_num) {
 async function binarySearch(arr, low, high, contract_address) {
 
   // Convert hexcimal to decimal number
-  let decHigh = parseInt(BigInt(high).toString());
-  let decLow = parseInt(BigInt(low).toString());
+  let decHigh = parseInt(high);
+  let decLow = parseInt(low);
 
   // console.log({decHigh, decLow});
 
@@ -113,14 +113,14 @@ async function binarySearch(arr, low, high, contract_address) {
     console.log({decHigh, mid, decLow});
     
     if (decHigh === decLow) { 
-      const hLow = `0x${BigInt(decLow).toString(16)}`;
+      const hLow = `0x${decLow.toString(16)}`;
       return hLow;
     }
 
     // Convert decimal to hexcimal string
-    let hexHigh = `0x${BigInt(decHigh).toString(16)}`;
-    let hexMid = `0x${BigInt(mid).toString(16)}`;
-    let hexLow = `0x${BigInt(decLow).toString(16)}`;
+    let hexHigh = `0x${decHigh.toString(16)}`;
+    let hexMid = `0x${mid.toString(16)}`;
+    let hexLow = `0x${decLow.toString(16)}`;
 
     // If element is smaller than mid, then it can only
     // be present in left subarray
@@ -129,7 +129,7 @@ async function binarySearch(arr, low, high, contract_address) {
       
       // Else the element can only be present in right subarray
     } else if (await getCode(contract_address, hexMid) === "0x") {
-      let nextHexMid = `0x${BigInt(mid + 1).toString(16)}`;
+      let nextHexMid = `0x${(mid + 1).toString(16)}`;
       return await binarySearch(arr, nextHexMid, hexHigh, contract_address)
     }
   } else {
