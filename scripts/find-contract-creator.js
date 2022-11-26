@@ -1,11 +1,16 @@
 require('dotenv').config();
 const axios = require('axios');
 
+// For goerli testnet
 const API_URL = process.env.API_URL;
+
+// For Ethereum mainnet
 // const API_URL = "https://eth-mainnet.g.alchemy.com/v2/cIOn7W3o1v8U_OL6HhOxDqU2-Z-mj1OB";
 
 async function getBlockNum() {
   // const url = "https://eth-mainnet.g.alchemy.com/v2/demo"
+
+  // console.log("getBlockNum");
 
   const payload = JSON.stringify({
     jsonrpc: "2.0",
@@ -23,19 +28,20 @@ async function getBlockNum() {
     url: API_URL,
     headers: headers,
     data: payload,
-  });
+  }).catch((e) => console.log(e));
 
-  console.log("response -->", response.data);
-  
-  const res = response.data.result;
-  console.log("res -->", res);
+  // console.log("response 1 -->", response.data.result);
 
-  console.log(typeof res === "string");
+  // console.log(typeof res === "string");
 
   return response.data.result;
 };
 
 async function getCode(contract_address, block_num) {
+
+  // console.log("getCode");
+  // console.log({contract_address, block_num});
+
   const payload = JSON.stringify({
     jsonrpc: "2.0",
     method: "eth_getCode",
@@ -52,14 +58,17 @@ async function getCode(contract_address, block_num) {
     url: API_URL,
     headers: headers,
     data: payload,
-  });
+  }).catch((e) => console.log(e));
 
-  console.log("response 2 -->", response.data);
+  // console.log("response 2 -->", response.data);
 
   return response.data.result;
 };
 
 async function getTxReceipt(block_num) {
+  // console.log("getTxReceipt");
+  // console.log({block_num});
+
   const payload = JSON.stringify({
     jsonrpc: "2.0",
     method: "alchemy_getTransactionReceipts",
@@ -80,34 +89,48 @@ async function getTxReceipt(block_num) {
     url: API_URL,
     headers: headers,
     data: payload,
-  });
+  }).catch((e) => console.log(e));
 
-  console.log("response 3 -->", response.data);
+  // console.log("response 3 -->", response.data);
 
   return response.data.result.receipts;
 };
 
 // Returns index of x in arr if present, else -1
 async function binarySearch(arr, low, high, contract_address) {
+
+  // Convert hexcimal to decimal number
+  let decHigh = parseInt(BigInt(high).toString());
+  let decLow = parseInt(BigInt(low).toString());
+
+  // console.log({decHigh, decLow});
+
   // Check base case
-  if (high >= low) {
-    let mid = parseInt((high + low)/2);
+  if (decHigh >= decLow) {
+    let mid = parseInt((decHigh + decLow)/2);
 
     console.log("===");
-    console.log({high, mid, low});
+    console.log({decHigh, mid, decLow});
     
-    if (high === low) { 
-      return low;
+    if (decHigh === decLow) { 
+      const hLow = `0x${BigInt(decLow).toString(16)}`;
+      return hLow;
     }
+
+    // Convert decimal to hexcimal string
+    let hexHigh = `0x${BigInt(decHigh).toString(16)}`;
+    let hexMid = `0x${BigInt(mid).toString(16)}`;
+    let hexLow = `0x${BigInt(decLow).toString(16)}`;
 
     // If element is smaller than mid, then it can only
     // be present in left subarray
-    if (await getCode(contract_address, mid.toString(16)) !== "0x") {
-      return binarySearch(arr, low, mid, contract_address)
-
-    // Else the element can only be present in right subarray
-    } else if (await getCode(contract_address, mid.toString(16)) === "0x") {
-      return await binarySearch(arr, mid+1, high, contract_address)
+    if (await getCode(contract_address, hexMid) !== "0x") {
+      return await binarySearch(arr, hexLow, hexMid, contract_address)
+      
+      // Else the element can only be present in right subarray
+    } else if (await getCode(contract_address, hexMid) === "0x") {
+      let nextHexMid = `0x${BigInt(mid + 1).toString(16)}`;
+      return await binarySearch(arr, nextHexMid, hexHigh, contract_address)
     }
   } else {
     // Element is not present in the array
@@ -115,44 +138,33 @@ async function binarySearch(arr, low, high, contract_address) {
   }
 };
 
-async function find_contract_deployer(contract_address) {
+async function findContractDeployer(contract_address) {
   let currNum = await getBlockNum();
 
-  console.log("currNum", currNum);
+  console.log("currNum : ", currNum);
   const arr = Array.from(Array(parseInt(currNum) + 1).keys());
-
-  console.log("arr length", arr.length);
 
   // Function call
   const result_block_num = await binarySearch(arr, 0, arr.length-1, contract_address);
+
+  console.log({result_block_num});
   const receipts = (await getTxReceipt(result_block_num));
 
-  console.log("receipts length", receipts.length);
+  console.log("receipts length : ", receipts.length);
 
-  for (let receipt of receipts) {
-    if ((receipt["contractAddress"]) === contract_address.toLowerCase()) {
-      return(receipt["from"], result_block_num);
+  for (const receipt of receipts) {
+    if (receipt.contractAddress == contract_address.toLowerCase()) {
+      return receipt.from;
     }
   }
+
+  return "not found";
 };
 
 // Find the deployer address of the smart contract
-find_contract_deployer("0xfd6E1B3666a073eccDd5379934F344D7e5f89930");
-
-
 async function run() {
-  const block = await getBlockNum();
-  // block.toLocaleString()
-  // console.log(typeof +block === "string");
-  // getCode("0xfd6E1B3666a073eccDd5379934F344D7e5f89930", +block);
-  const arr = Array.from(Array(parseInt(block) + 1).keys());
-
-  console.log("arr --> ", arr);
-
-  // await getTxReceipt(block);
-  await binarySearch(arr, 0, arr.length - 1, "0xfd6E1B3666a073eccDd5379934F344D7e5f89930");
+  const deployer = await findContractDeployer("0xf4910c763ed4e47a585e2d34baa9a4b611ae448c");
+  console.log("deployer --> ", deployer);
 }
 
 run();
-// getBlockNum();
-
