@@ -5,22 +5,29 @@ const API_KEY = process.env.API_KEY;
 
 const config = {
     apiKey: API_KEY,
-    network: Network.ETH_GOERLI,
+    network: Network.ETH_MAINNET,
 };
 const alchemy = new Alchemy(config);
 
 const main = async () => {
-    // NFT Contract address
-    const address = "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D";
+    // Contract address
+  const address = "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D";
 
-    // Flag to omit metadata
-    const omitMetadata = false;
+  // Flag to omit metadata
+  const omitMetadata = false;
 
-    // Get all NFTs
-    const response = await alchemy.nft.getNftsForContract(address, {
-        omitMetadata: omitMetadata,
-    });
-    console.log(JSON.stringify(response, null, 2));
+  // Get all NFTs
+  const { nfts } = await alchemy.nft.getNftsForContract(address, {
+    omitMetadata: omitMetadata,
+  });
+
+  let i = 1;
+
+  for (let nft of nfts) {
+    // The API will only return data for the first 100 NFTs
+    console.log(`${i}. ${nft.rawMetadata.image}`);
+    i++;
+  }
 };
 
 const runMain = async () => {
