@@ -1,3 +1,4 @@
+// How to Listen to NFT Mints
 require('dotenv').config();
 const { Network, Alchemy } = require("alchemy-sdk");
 

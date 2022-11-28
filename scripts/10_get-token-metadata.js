@@ -1,4 +1,4 @@
-// Setup: npm install alchemy-sdk
+// How to Get Token Metadata
 require('dotenv').config();
 const { Network, Alchemy } = require("alchemy-sdk");
 
@@ -11,13 +11,12 @@ const config = {
 const alchemy = new Alchemy(config);
 
 const main = async () => {
-  // Check if 0xshah.eth owns a Bored Ape.
-  const nfts = await alchemy.nft.verifyNftOwnership(
-    "0x6D6Fe13E339Aa55743E2A719f80A71Ee6e18831f", // owner address
-    ["0xf4910c763ed4e47a585e2d34baa9a4b611ae448c"] // NFT contract address
+  // The token address we want to query for metadata
+  const metadata = await alchemy.core.getTokenMetadata(
+    "0xfd6E1B3666a073eccDd5379934F344D7e5f89930" // NFT smart contract address
   );
-  // Print NFTs
-  console.log(nfts);
+
+  console.log("TOKEN METADATA", metadata);
 };
 
 // Execute the code

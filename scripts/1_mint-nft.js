@@ -1,3 +1,4 @@
+// How to Mint an NFT from Code
 require('dotenv').config();
 const ethers = require('ethers');
 

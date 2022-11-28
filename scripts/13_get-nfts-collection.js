@@ -1,3 +1,4 @@
+// How to Get All NFTs in a Collection
 require('dotenv').config();
 const { Network, Alchemy } = require("alchemy-sdk");
 

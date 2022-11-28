@@ -1,15 +1,14 @@
+// How to Get NFT Contract Creator Address
 require('dotenv').config();
 const axios = require('axios');
 
-// For goerli testnet
-const API_URL = process.env.API_URL;
+// For Goerli testnet
+// const API_URL = process.env.API_URL;
 
 // For Ethereum mainnet
-// const API_URL = "https://eth-mainnet.g.alchemy.com/v2/cIOn7W3o1v8U_OL6HhOxDqU2-Z-mj1OB";
+const API_URL = "https://eth-mainnet.g.alchemy.com/v2/cIOn7W3o1v8U_OL6HhOxDqU2-Z-mj1OB";
 
 async function getBlockNum() {
-  // const url = "https://eth-mainnet.g.alchemy.com/v2/demo"
-
   // console.log("getBlockNum");
 
   const payload = JSON.stringify({
@@ -153,7 +152,7 @@ async function findContractDeployer(contract_address) {
   console.log("receipts length : ", receipts.length);
 
   for (const receipt of receipts) {
-    if (receipt.contractAddress == contract_address.toLowerCase()) {
+    if (receipt.contractAddress === contract_address.toLowerCase()) {
       return receipt.from;
     }
   }
@@ -163,7 +162,7 @@ async function findContractDeployer(contract_address) {
 
 // Find the deployer address of the smart contract
 async function run() {
-  const deployer = await findContractDeployer("0xf4910c763ed4e47a585e2d34baa9a4b611ae448c");
+  const deployer = await findContractDeployer("0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D");
   console.log("deployer --> ", deployer);
 }
 

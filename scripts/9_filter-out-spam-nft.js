@@ -1,4 +1,4 @@
-// Setup: npm install alchemy-sdk
+// How to Filter Out Spam NFTs
 require('dotenv').config();
 const { Network, Alchemy } = require("alchemy-sdk");
 

@@ -1,4 +1,4 @@
-// Setup: npm install alchemy-sdk
+// How to Get all NFT Transactions by an Address
 require('dotenv').config();
 const { Network, Alchemy } = require("alchemy-sdk");
 
